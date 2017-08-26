@@ -160,7 +160,7 @@ Help improve `acme-wf`! Pull requests are welcomed.
 
 `acme-wf` was created by Graham Miln / https://miln.eu / @grahammiln and is licensed under the Apache License, Version 2.0.
 
-`acme-wf` has not affiliation or associations with `acme.sh` or WebFaction.
+`acme-wf` has no affiliation or associations with `acme.sh` or WebFaction, except by being a user and customer.
 
 [acme.sh]: https://github.com/Neilpang/acme.sh
 [WebFaction]: https://www.webfaction.com/?aid=50311
