@@ -33,6 +33,13 @@ go get
 go build
 ```
 
+[Cross compile from macOS](https://stackoverflow.com/questions/12168873) to other platforms using:
+
+```
+GOOS=linux GOARCH=386 CGO_ENABLED=0 go build -o acme-wf.linux main.go
+GOOS=windows GOARCH=386 go build -o acme-wf.exe main.go
+```
+
 # Getting Started
 
 1. Install [acme.sh][] on your [WebFaction][] server.
