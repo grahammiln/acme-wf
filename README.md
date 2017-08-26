@@ -22,6 +22,17 @@ With `acme-wf` a secure certificate can be updated with one command and without 
 
 Ideally, WebFaction will add automatic LetsEncrypt support. Until then, we have `acme.sh` and `acme-wf`.
 
+# Build
+
+Assuming `go` is installed on your computer, get and build `acme-wf` using the commands:
+
+```
+git clone https://github.com/grahammiln/acme-wf.git
+cd acme-wf
+go get
+go build
+```
+
 # Getting Started
 
 1. Install [acme.sh][] on your [WebFaction][] server.
