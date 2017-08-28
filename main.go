@@ -50,7 +50,7 @@ func main() {
 	// WebFaction control panel password is optional; interactive if not provided
 	if wfPassword == nil || *wfPassword == "" {
 		fmt.Print("WebFaction control panel password: ")
-		wfp, err := terminal.ReadPassword(syscall.Stdin)
+		wfp, err := terminal.ReadPassword(int(syscall.Stdin))
 		if err != nil {
 			log.Fatal(fmt.Sprintf("[ERROR] Unable to read password: %v", err))
 		}
