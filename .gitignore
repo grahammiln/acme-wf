@@ -1,5 +1,4 @@
-letsencrypt-wf
-letsencrypt-wf.exe
+dist/*
 vendor/*/
 .DS_Store
 *~

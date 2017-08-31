@@ -2,6 +2,8 @@
 
 Use `acme-wf` to securely transfer [acme.sh][] certificates to your [WebFaction][] account.
 
+> Download the [latest release](https://github.com/grahammiln/acme-wf/releases/latest) of `acme-wf`. Pre-built binaries exist for Linux, macOS, and Windows.
+
 WebFaction is a web host who support customer managed SSL/TLS certificates but WebFaction do not directly support LetsEncrypt. This tool bridges the gap between the excellent `acme.sh` project and WebFaction's lack of LetsEncrypt support.
 
 ## Overview
@@ -39,6 +41,10 @@ go build
 GOOS=linux GOARCH=386 CGO_ENABLED=0 go build -o acme-wf.linux main.go
 GOOS=windows GOARCH=386 go build -o acme-wf.exe main.go
 ```
+
+## Building for Release
+
+The included `Makefile` will build `acme-wf` binaries for numerous platforms. The binaries are created in the `dist/` folder.
 
 # Getting Started
 
