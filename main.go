@@ -16,8 +16,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"path"
 	"strings"
 	"syscall"
@@ -33,6 +35,7 @@ import (
 var wfUsername = flag.String("u", "", "WebFaction user name (required)")
 var wfPassword = flag.String("p", "", "WebFaction control panel password (optional)")
 var wfServer = flag.String("s", "", "WebFaction server (optional)")
+var renewHook = flag.Bool("renew-hook", false, "Send an e-mail to postmaster@... domain")
 
 func main() {
 	flag.Usage = func() {
@@ -41,6 +44,14 @@ func main() {
 		fmt.Fprintf(os.Stderr, "acme-wf Copyright 2017 Graham Miln, https://miln.eu. All rights reserved.\n")
 	}
 	flag.Parse()
+
+	// If renew-hook flag set, ignore all other options
+	if renewHook != nil && *renewHook {
+		if err := sendNotificationEmail(); err != nil {
+			log.Fatal(fmt.Sprintf("[ERROR] Unable to send notification e-mail: %v", err))
+		}
+		return
+	}
 
 	// WebFaction username is required
 	if wfUsername == nil || *wfUsername == "" {
@@ -166,4 +177,47 @@ func sshGetFile(ssh *gossh.Client, p string) (string, error) {
 		return "", err
 	}
 	return rsp.Stdout(), nil
+}
+
+// Send a notification e-mail to the postmaster account of the domain
+// https://github.com/Neilpang/acme.sh/wiki/Using-%27--pre-hook%27,-%27--post-hook%27,-%27--renew-hook%27-and-%27--reload-cmd%27
+func sendNotificationEmail() error {
+	// acme.sh --renew-hook changes to the affected domain's directory; use this to determine e-mail address
+	cwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	domain := strings.TrimPrefix(path.Base(cwd), "www.")
+
+	// Simply sanity check for likely domain
+	if strings.Count(domain, ".") == 0 {
+		return fmt.Errorf("Malformed or invalid domain: %s", domain)
+	}
+
+	// Use sendmail to send a notification e-mail to postmaster@domain
+	// See https://webmasters.stackexchange.com/questions/2030 and https://stackoverflow.com/questions/7233624
+	e := fmt.Sprintf("acme-wf <postmaster@%s>", domain)
+	m := fmt.Sprintf("Subject: SSL certificate needs attention\n\nHello,\n\nacme.sh renewed the SSL certificate for '%s'. You need to update your WebFaction control panel to use this certificate. Use the command `./acme-wf -u <username> %s`.\n\nThank you\n", domain, path.Base(cwd))
+
+	log.Printf("[INFO] Sending notification e-mail: %s", e)
+
+	// https://www.snip2code.com/Snippet/716193/Sendmail-Using-Golang-without-SMTP--Exam/
+	sendmail := exec.Command("/usr/sbin/sendmail", "-f", e, e)
+	stdin, err := sendmail.StdinPipe()
+	if err != nil {
+		return err
+	}
+	stdout, err := sendmail.StdoutPipe()
+	if err != nil {
+		return err
+	}
+	if err = sendmail.Start(); err != nil {
+		return err
+	}
+	stdin.Write([]byte(m))
+	stdin.Close()
+	if _, err = ioutil.ReadAll(stdout); err != nil {
+		return err
+	}
+	return sendmail.Wait()
 }
